@@ -13,9 +13,9 @@ from subprocess import Popen, PIPE
 # paths
 SYSTEM_THEME_PATH = "/usr/share/j4-make-config-git/themes"
 THEME_PATH = ""
-i3_PATH = ""
-i3_BASECONFIG_PATH = ""
-i3_CONFIG_PATH = ""
+SWAY_PATH = ""
+SWAY_BASECONFIG_PATH = ""
+SWAY_CONFIG_PATH = ""
 # cli arguments
 theme_name = None
 appendFiles_list = []
@@ -31,36 +31,36 @@ barText = ""
 commandString = ""
 
 def detectConfigDir():
-	global i3_PATH
-	if path.exists(getenv("HOME") + "/.i3/config.base"):
-		i3_PATH = getenv("HOME") + "/.i3"
+	global SWAY_PATH
+	if path.exists(getenv("HOME") + "/sway/config.base"):
+		SWAY_PATH = getenv("HOME") + "/sway"
 		return True
 	if getenv("XDG_CONFIG_HOME") is not None:
-		if path.exists(getenv("XDG_CONFIG_HOME") + "/i3/config.base"):
-			i3_PATH = getenv("XDG_CONFIG_HOME") + "/i3"
+		if path.exists(getenv("XDG_CONFIG_HOME") + "/sway/config.base"):
+			SWAY_PATH = getenv("XDG_CONFIG_HOME") + "/sway"
 			return True
-	if path.exists(getenv("HOME") + "/.config/i3/config.base"):
-		i3_PATH = getenv("HOME") + "/.config/i3"
+	if path.exists(getenv("HOME") + "/.config/sway/config.base"):
+		SWAY_PATH = getenv("HOME") + "/.config/sway"
 		return True
 	else:
 		return False
 
 def printUsageInfo():
-	info = """i3 config generator/switcher\n
+	info = """sway config generator/switcher\n
 Usage examples:
 ===============
 Create config file and include a specific theme:
-\tj4-make-config <theme-name>
+\tsway-make-config <theme-name>
 Create config file without including a theme:
-\tj4-make-config none
+\tsway-make-config none
 Include a specific/no theme and reload i3 after creating the config file:
-\tj4-make-config -r <theme-name>|none
+\tsway-make-config -r <theme-name>|none
 Append additional configuration from files in the i3 config directory:
-\tj4-make-config -a <file-name> -a <another-file-name> <theme-name>|none
+\tsway-make-config -a <file-name> -a <another-file-name> <theme-name>|none
 Append additional configuration and reload i3 after creating the config file:
-\tj4-make-config -r -a <file-name> <theme-name>|none
-Run j4-make-config with the most recently used arguments:
-\tj4-make-config"""
+\tsway-make-config -r -a <file-name> <theme-name>|none
+Run sway-make-config with the most recently used arguments:
+\tsway-make-config"""
 	print(info)
 
 def printThemeList():
@@ -71,13 +71,13 @@ def printThemeList():
 if __name__ == "__main__":
 	# detect i3 configuration directory
 	if not detectConfigDir():
-		print("Error: i3 base config file could not be found.")
+		print("Error: sway base config file could not be found.")
 		exit(1)
 	else:
 		# set paths
-		THEME_PATH = i3_PATH + "/themes"
-		i3_BASECONFIG_PATH = i3_PATH + "/config.base"
-		i3_CONFIG_PATH = i3_PATH + "/config"
+		THEME_PATH = SWAY_PATH + "/themes"
+		SWAY_BASECONFIG_PATH = SWAY_PATH + "/config.base"
+		SWAY_CONFIG_PATH = SWAY_PATH + "/config"
 		# fill themes dictionary with names and paths
 		try:
 			if path.exists(SYSTEM_THEME_PATH):
@@ -97,11 +97,11 @@ if __name__ == "__main__":
 	# -a <file-name>
 	if (len(argv) == 1):
 		# no arguments given, use commandstring from rc file
-		if path.exists(getenv("HOME") + "/.j4-make-config.rc"):
+		if path.exists(getenv("HOME") + "/.sway-make-config.rc"):
 			try:
-				rcfile = open(getenv("HOME") + "/.j4-make-config.rc", "r")
+				rcfile = open(getenv("HOME") + "/.sway-make-config.rc", "r")
 			except IOError:
-				print("Error: file %s could not be opened." % (getenv("HOME") + "/.j4-make-config.rc"))
+				print("Error: file %s could not be opened." % (getenv("HOME") + "/.sway-make-config.rc"))
 				exit(1)
 			commandString = rcfile.read()
 			rcfile.close()
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 			retval = system(commandString)
 			exit(retval)
 		else:
-			print("Error: file %s does not exist yet." % (getenv("HOME") + "/.j4-make-config.rc"))
+			print("Error: file %s does not exist yet." % (getenv("HOME") + "/.sway-make-config.rc"))
 			exit(1)
 	elif (argv[1] == "-h" or argv[1] == "--help"):
 		# print usage info independent of argument count
@@ -169,10 +169,10 @@ if __name__ == "__main__":
 		
 		# read themefile, create section strings
 		for line in themefile:
-			if "$i3-theme-window" in line:
+			if "$sway-theme-window" in line:
 				windowActive = True
 				barActive = False
-			elif "$i3-theme-bar" in line:
+			elif "$sway-theme-bar" in line:
 				windowActive = False
 				barActive = True
 			else:
@@ -186,7 +186,7 @@ if __name__ == "__main__":
 	try:
 		basefile = open(i3_BASECONFIG_PATH, "r")
 	except IOError:
-		print("Error: i3 base config file could not be opened.")
+		print("Error: sway base config file could not be opened.")
 		exit(1)
 	# read all lines of base config into list
 	baselines_list.extend(basefile.readlines())
@@ -207,16 +207,16 @@ if __name__ == "__main__":
 	try:
 		configfile = open(i3_CONFIG_PATH, "w")
 	except IOError:
-		print("Error: i3 config file could not be created.")
+		print("Error: sway config file could not be created.")
 		exit(1)
 	
 	# iterate over base config lines, write all to config file
 	# and insert theme config at the right place
 	for line in baselines_list:
-		if "$i3-theme-window" in line:
+		if "$sway-theme-window" in line:
 			if not noTheme:
 				configfile.write(windowText)
-		elif "$i3-theme-bar" in line:
+		elif "$sway-theme-bar" in line:
 			if not noTheme:
 				configfile.write(barText)
 		else:
@@ -225,7 +225,7 @@ if __name__ == "__main__":
 	configfile.close()
 
 	if doReload:
-		system("i3-msg reload")
+		system("swaymsg reload")
 	
 	# store commandstring in rc file
 	if (argv[1] != "-i"):
@@ -233,9 +233,9 @@ if __name__ == "__main__":
 	else:
 		commandString = argv[0] + ' -r ' + theme_name
 	try:
-		rcfile = open(getenv("HOME") + "/.j4-make-config.rc", "w")
+		rcfile = open(getenv("HOME") + "/.sway-make-config.rc", "w")
 	except IOError:
-		print("Error: file %s could not be opened." % (getenv("HOME") + "/.j4-make-config.rc"))
+		print("Error: file %s could not be opened." % (getenv("HOME") + "/.sway-make-config.rc"))
 		exit(1)
 	rcfile.write(commandString)
 	rcfile.flush()
