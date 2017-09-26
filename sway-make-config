@@ -169,10 +169,10 @@ if __name__ == "__main__":
 		
 		# read themefile, create section strings
 		for line in themefile:
-			if "$sway-theme-window" in line:
+			if "$i3-theme-window" in line:
 				windowActive = True
 				barActive = False
-			elif "$sway-theme-bar" in line:
+			elif "$i3-theme-bar" in line:
 				windowActive = False
 				barActive = True
 			else:
@@ -184,7 +184,7 @@ if __name__ == "__main__":
 	
 	# try to open i3 base config file
 	try:
-		basefile = open(i3_BASECONFIG_PATH, "r")
+		basefile = open(SWAY_BASECONFIG_PATH, "r")
 	except IOError:
 		print("Error: sway base config file could not be opened.")
 		exit(1)
@@ -195,7 +195,7 @@ if __name__ == "__main__":
 	# append all additional configuration files
 	for appendFilename in appendFiles_list:
 		try:
-			appendFile = open(i3_PATH + "/" + appendFilename, "r")
+			appendFile = open(SWAY_PATH + "/" + appendFilename, "r")
 		except IOError:
 			print("Error: file %s could not be opened." % appendFilename)
 			exit(1)
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 	
 	# try to open i3 config file
 	try:
-		configfile = open(i3_CONFIG_PATH, "w")
+		configfile = open(SWAY_CONFIG_PATH, "w")
 	except IOError:
 		print("Error: sway config file could not be created.")
 		exit(1)
